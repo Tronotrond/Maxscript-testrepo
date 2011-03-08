@@ -1,3 +1,76 @@
+global crcDebug = true
+global partsArray = #()
+global wcol = [120, 120, 120]  -- wirecolor
+global camInheritance = 	#{1,2,3}
+									--{POS_X,POS_Y,POS_Z,ROT_X,ROT_Y,ROT_Z,SCALE_X,SCALE_Y,SCALE_Z}
+
+
+
+
+rollout crcRollout "Camera Rig Creator v0.1" width:300 height:300
+(
+	button btn1 "Create" pos:[20,39] width:170 height:55 enabled:true
+	button btn2 "Rig" pos:[26,127] width:162 height:52 enabled:false
+	on btn1 pressed do
+	(
+		-- should track mouse for placing rig in later version
+		
+		-- create rig
+		partsArray[1] = box length: 50 	width: 50 	height: 5.0
+		partsArray[2] = box length: 5.0 	width: 5.0 	height: 100
+		partsArray[3] = box length: 5.0	width: 5.0	height: 150 pos:[0,0,(partsArray[2].height-(partsArray[2].height/5))]
+		partsArray[3].pivot = [0, 0, partsArray[2].height]
+		rotate partsArray[3] (angleaxis 90 [0,1,0])	-- rotate part 3 90 degrees for easy placement of next part
+		partsArray[4] = box length: 5.0 	width: 5.0	height: 15 pos:[(partsArray[3].height-(partsArray[2].height/5)),0,partsArray[2].height]
+		rotate partsArray[4] (angleaxis 180[0,1,0]) 	-- flip upside down
+		partsArray[5] = dummy pos:[(partsArray[3].height-(partsArray[2].height/5)),0,(partsArray[2].height-(partsArray[4].height*2))]
+		rotate partsArray[5] (angleaxis 180[0,1,0]) 	-- flip upside down
+		partsArray[6] = targetcamera name:"rigCamera" pos:[(partsArray[3].height-(partsArray[2].height/5)),0,(partsArray[2].height-(partsArray[4].height*3))]
+		rotate partsArray[6] (angleaxis -90 [0,0,1])	-- rotate camera
+		rotate partsArray[6] (angleaxis -90 [0,1,0])
+		
+		setInheritanceFlags partsArray[4] camInheritance  -- set camera parent inheritance parameter
+		setInheritanceFlags partsArray[5] camInheritance  -- set camera parent inheritance parameter
+
+		for i in partsArray.count to 2 by -1 do
+			partsArray[i].parent = partsArray[i-1]
+				
+		
+		rotate partsArray[3] (angleaxis -45 [0,1,0])
+		
+		btn1.enabled = false
+		btn2.enabled = true
+		
+		
+		
+		
+			
+	)
+	
+	on btn2 pressed  do
+	(
+		for a in 1 to partsArray.count do
+		(
+			
+			if crcDebug == true then 
+			(
+				print a
+			)
+		)
+		ikChain01 = IKSys.ikChain partsArray[2] partsArray[5] "IKHISolver"
+	
+	)
+	
+	
+)
+
+
+
+createDialog crcRollout 
+
+
+----------- FLYTHROUGH SCRIPT --------------------
+
 rollout FlythroughMaker "Flythrough Maker v1.0"
 (
 	local Obj		-- Circle storage
